@@ -13,33 +13,69 @@ import java.net.Socket;
 public class StalkiServer {
 	
 	public static void main(String[] args) {
-		System.out.println("Hello World!");
-
+		
+		ServerSocket ss = null;
+		Socket socket = null;
+		SecureMessageHandler handler = null;
+		
 		try {
-			Socket socket 	= new Socket("localhost", 9806);
+		
+			ss = new ServerSocket(9806);
 			
+			while(true){
+				socket 	= new Socket("localhost", 9806);
+				handler = new SecureMessageHandler(socket);
+				handler.start();
+			}
+
+		} catch (IOException e) {
 			
-			/**
-			 * reads data from userinput
-			 */
-			BufferedReader userInputReader = new BufferedReader(new InputStreamReader(System.in));
+			System.out.println(" Exception Catch :: " + e);
+		
+		}
+		finally{
+		
+			try {
+				
+				if(ss != null)
+					ss.close();
+				
+				if(socket != null)
+					socket.close();
 			
-			/**
-			 * reads data from socket
-			 */
-			BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			} catch (IOException e1) {
 			
+				System.out.println(" Exception Catch :: " + e1);
 			
-			PrintWriter outputWriter = new PrintWriter(socket.getOutputStream(), true);
-			
-			
-			PrintWriter outWriter = new PrintWriter(socket.getOutputStream(),true);
-			
+			}
+		
+		}
+
+	}
+
+}
+
+
+class SecureMessageHandler extends Thread{
+	Socket socket;
+	BufferedReader reader;
+	PrintWriter outputWriter;
+	
+	public SecureMessageHandler(Socket socket){
+		this.socket = socket;
+		
+	}
+	
+	public void run(){
+		
+		try {
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			outputWriter = new PrintWriter(socket.getOutputStream(), true);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e);
 		}
-	
+		
+		
 	}
 }
